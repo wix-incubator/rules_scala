@@ -324,6 +324,8 @@ def _write_launcher(ctx, rjars, main_class, jvm_flags, args="", wrapper_preamble
         content = """#!/bin/bash
 {preamble}
 
+mkdir -p {runfiles_root}/target/test-classes
+
 {javabin} "$@" {args}
 """.format(
             preamble=wrapper_preamble,
