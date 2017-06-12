@@ -331,6 +331,8 @@ mkdir -p {runfiles_root}/target/test-classes
             preamble=wrapper_preamble,
             javabin=javabin,
             args=args,
+            runfiles_root = runfiles_root
+
         ),
     )
 
