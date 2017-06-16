@@ -314,7 +314,9 @@ def _write_launcher(ctx, rjars, main_class, jvm_flags, args="", wrapper_preamble
     classpath = ":".join(["%s" % (j.short_path) for j in rjars])
     if ctx.attr.testonly:
       classpath = "target/test-classes:%s" % classpath
-    
+    else:
+       classpath = ":".join(["${RUNPATH}%s" % (j.short_path) for j in rjars])
+
     jvm_flags = " ".join([ctx.expand_location(f, ctx.attr.data) for f in jvm_flags])
     javabin = "%s/%s" % (runfiles_root, ctx.executable._java.short_path)
     template = ctx.attr._java_stub_template.files.to_list()[0]
