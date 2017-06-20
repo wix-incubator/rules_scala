@@ -151,8 +151,8 @@ scala_library(
 )
 
 scala_library(
-    name = "MoreScalaLibResources",
-    srcs = ["src/main/scala/scala/test/MoreScalaLibResources.scala"],
+    name = "ResourcesStripScalaLib",
+    srcs = ["src/main/scala/scala/test/ResourcesStripScalaLib.scala"],
     resources = [
         "//test/data:more.txt",
         "//test/data:foo.txt",
@@ -170,10 +170,10 @@ scala_binary(
 )
 
 scala_binary(
-    name = "MoreScalaLibBinary",
-    srcs = ["src/main/scala/scala/test/MoreScalaLibBinary.scala"],
-    main_class = "scala.test.MoreScalaLibBinary",
-    deps = ["MoreScalaLibResources"],
+    name = "ResourcesStripScalaBinary",
+    srcs = ["src/main/scala/scala/test/ResourcesStripScalaBinary.scala"],
+    main_class = "scala.test.ResourcesStripScalaBinary",
+    deps = ["ResourcesStripScalaLib"],
 )
 
 scala_repl(
@@ -181,8 +181,8 @@ scala_repl(
     deps = [":ScalaLibBinary"])
 
 scala_repl(
-    name = "MoreScalaLibBinaryRepl",
-    deps = [":MoreScalaLibBinary"])
+    name = "ResourcesStripScalaBinaryRepl",
+    deps = [":ResourcesStripScalaBinary"])
 
 scala_repl(
     name = "ReplWithSources",
@@ -292,7 +292,7 @@ scala_specs2_junit_test(
     "JavaBinary2",
     "ScalaBinary",
     "ScalaLibBinary",
-    "MoreScalaLibBinary",
+    "ResourcesStripScalaBinary",
     "MixJavaScalaLibBinary",
     "JavaOnlySources",
 ]]
