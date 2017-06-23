@@ -177,7 +177,6 @@ JarOutput: {out}
 JavacOpts: -encoding utf8 {javac_opts}
 JavacPath: {javac_path}
 JavaFiles: {java_files}
-JvmFlags: {jvm_flags}
 Manifest: {manifest}
 Plugins: {plugin_arg}
 PrintCompileTime: {print_compile_time}
@@ -203,7 +202,6 @@ SourceJars: {srcjars}
         javac_path=ctx.executable._javac.path,
         java_files=",".join([f.path for f in java_srcs]),
         #  these are the flags passed to javac, which needs them prefixed by -J
-        jvm_flags=",".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
         resource_src=",".join([f.path for f in ctx.files.resources]),
         resource_dest=",".join(
           [_adjust_resources_path_by_default_prefixes(f.path)[1] for f in ctx.files.resources]
@@ -253,7 +251,7 @@ SourceJars: {srcjars}
         # be correctly handled since the executable is a jvm app that will
         # consume the flags on startup.
 
-        arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.jvm_flags] + ["@" + argfile.path],
+        arguments= ["@" + argfile.path],
       )
 
 
