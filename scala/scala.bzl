@@ -220,7 +220,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         ijar_out=ijar_output_path,
         ijar_cmd_path=ijar_cmd_path,
         srcjars=",".join([f.path for f in all_srcjars]),
-        javac_opts=" ".join(ctx.attr.javacopts) + 
+        javac_opts=" ".join(ctx.attr.javacopts) +
                 #  these are the flags passed to javac, which needs them prefixed by -J
                 " ".join(["-J" + flag for flag in ctx.attr.javac_jvm_flags]),
         javac_path=ctx.executable._javac.path,
