@@ -310,19 +310,19 @@ scala_specs2_junit_test(
 ]]
 
 # Make sure scala_binary works in genrule environment
-genrule(
-    name = "ScalaBinaryInGenrule",
-    tools = [":ScalaBinary"],
-    outs = ["scala_binary_out.txt"],
-    cmd = "$(location :ScalaBinary) > $@",
-)
+#genrule(
+#    name = "ScalaBinaryInGenrule",
+#    tools = [":ScalaBinary"],
+#    outs = ["scala_binary_out.txt"],
+#    cmd = "$(location :ScalaBinary) > $@",
+#)
 
-sh_test(
-    name = "TestScalaBinaryInGenrule",
-    srcs = ["test_binary.sh"],
-    args = ["cat $(location :ScalaBinaryInGenrule)"],
-    data = [":ScalaBinaryInGenrule"],
-)
+#sh_test(
+#    name = "TestScalaBinaryInGenrule",
+#    srcs = ["test_binary.sh"],
+#    args = ["cat $(location :ScalaBinaryInGenrule)"],
+#    data = [":ScalaBinaryInGenrule"],
+#)
 
 scala_specs2_junit_test(
     name = "data_location_expansion",
