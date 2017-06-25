@@ -270,7 +270,7 @@ EnableDependencyAnalyzer: {enable_dependency_analyzer}
         # be correctly handled since the executable is a jvm app that will
         # consume the flags on startup.
 
-        arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.jvm_flags] + ["@" + argfile.path],
+        arguments=["--jvm_flag=%s" % flag for flag in ctx.attr.scalac_jvm_flags] + ["@" + argfile.path],
       )
 
 
@@ -652,6 +652,7 @@ _common_attrs = {
   "scalacopts":attr.string_list(),
   "javacopts":attr.string_list(),
   "jvm_flags": attr.string_list(),
+  "scalac_jvm_flags": attr.string_list(),
   "print_compile_time": attr.bool(default=False, mandatory=False),
   "enable_dependency_analyzer": attr.bool(default=True, mandatory=False),
   "dependency_analyzer_plugin": attr.label(default=Label("//plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
