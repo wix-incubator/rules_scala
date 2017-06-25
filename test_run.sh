@@ -60,45 +60,11 @@ test_transitive_deps() {
 }
 
 test_scala_library_suite() {
-  set +e
-
-  bazel build test_expect_failure/scala_library_suite:library_suite_dep_on_children
-  if [ $? -eq 0 ]; then
-    echo "'bazel build test_expect_failure/scala_library_suite:library_suite_dep_on_children' should have failed."
-    exit 1
-  fi
-  set -e
-  exit 0
-}
-
-test_scala_library_expect_failure_on_missing_direct_deps() {
-  expected_message="Target '//test_expect_failure/missing_direct_deps:direct_dependency' is used but isn't explicitly declared, please add it to the deps"
-  command='bazel build test_expect_failure/missing_direct_deps:transitive_dependency_user'
-  output=$($command 2>&1)
-  if [  $? -eq 0 ]; then
-    echo "$output"
-    echo "'bazel build of scala_library with missing direct deps should have failed."
-    exit 1
-  fi
-  echo "$output"
-  echo $output | grep "$expected_message"
-  if [ $? -ne 0 ]; then
-    echo "'bazel build test_expect_failure/missing_direct_deps:transitive_dependency_user' should have logged \"$expected_message\"."
-    exit 1
-  fi
-  exit 0
+  action_should_fail build test_expect_failure/scala_library_suite:library_suite_dep_on_children
 }
 
 test_scala_junit_test_can_fail() {
-  set +e
-
-  bazel test test_expect_failure/scala_junit_test:failing_test
-  if [ $? -eq 0 ]; then
-    echo "'bazel build test_expect_failure/scala_junit_test:failing_test' should have failed."
-    exit 1
-  fi
-  set -e
-  exit 0
+  action_should_fail test test_expect_failure/scala_junit_test:failing_test
 }
 
 test_repl() {
@@ -193,6 +159,20 @@ run_test_local() {
   fi
 }
 
+action_should_fail() {
+  # runs the tests locally
+  set +e
+  TEST_ARG=$@
+  $(bazel $TEST_ARG)
+  RESPONSE_CODE=$?
+  if [ $RESPONSE_CODE -eq 0 ]; then
+    echo -e "${RED} \"bazel $TEST_ARG\" should have failed but passed. $NC"
+    exit -1
+  else
+    exit 0
+  fi
+}
+
 xmllint_test() {
   find -L ./bazel-testlogs -iname "*.xml" | xargs -n1 xmllint > /dev/null
 }
@@ -241,27 +221,11 @@ junit_generates_xml_logs() {
 }
 
 test_junit_test_must_have_prefix_or_suffix() {
-  set +e
-
-  bazel test test_expect_failure/scala_junit_test:no_prefix_or_suffix
-  if [ $? -eq 0 ]; then
-    echo "'bazel build test_expect_failure/scala_junit_test:no_prefix_or_suffix' should have failed."
-    exit 1
-  fi
-  set -e
-  exit 0
+  action_should_fail test test_expect_failure/scala_junit_test:no_prefix_or_suffix
 }
 
 test_junit_test_errors_when_no_tests_found() {
-  set +e
-
-  bazel test test_expect_failure/scala_junit_test:no_tests_found
-  if [ $? -eq 0 ]; then
-    echo "'bazel build test_expect_failure/scala_junit_test:no_tests_found' should have failed."
-    exit 1
-  fi
-  set -e
-  exit 0
+  action_should_fail test test_expect_failure/scala_junit_test:no_tests_found
 }
 
 test_resources() {
@@ -282,14 +246,7 @@ scala_library_jar_without_srcs_must_include_filegroup_resources(){
 }
 
 scala_library_jar_without_srcs_must_fail_on_mismatching_resource_strip_prefix() {
-  set +e
-  bazel build test_expect_failure/wrong_resource_strip_prefix:noSrcsJarWithWrongStripPrefix
-  if [ $? -eq 0 ]; then
-    echo "'bazel build of scala_library with invalid resource_strip_prefix should have failed."
-    exit 1
-  fi
-  set -e
-  exit 0
+  action_should_fail build test_expect_failure/wrong_resource_strip_prefix:noSrcsJarWithWrongStripPrefix
 }
 
 scala_test_test_filters() {
@@ -351,26 +308,30 @@ scala_junit_test_test_filter(){
 }
 
 scalac_jvm_flags_are_configured(){
-  set +e
+  action_should_fail build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_scalac
 
-  bazel build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_scalac
-  if [ $? -eq 0 ]; then
-    echo "'bazel build test_expect_failure/compiler_jvm_flags:can_configure_jvm_flags_for_scalac' should have failed."
-    exit 1
-  fi
-  set -e
-  exit 0
 }
 
 javac_jvm_flags_are_configured(){
-  set +e
+  action_should_fail build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_javac
 
-  bazel build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_javac
-  if [ $? -eq 0 ]; then
-    echo "'bazel build test_expect_failure/compiler_jvm_flags:can_configure_jvm_flags_for_scalac' should have failed."
+}
+
+test_scala_library_expect_failure_on_missing_direct_deps() {
+  expected_message="Target '//test_expect_failure/missing_direct_deps:direct_dependency' is used but isn't explicitly declared, please add it to the deps"
+  command='bazel build test_expect_failure/missing_direct_deps:transitive_dependency_user'
+  output=$($command 2>&1)
+  if [  $? -eq 0 ]; then
+    echo "$output"
+    echo "'bazel build of scala_library with missing direct deps should have failed."
     exit 1
   fi
-  set -e
+  echo "$output"
+  echo $output | grep "$expected_message"
+  if [ $? -ne 0 ]; then
+    echo "'bazel build test_expect_failure/missing_direct_deps:transitive_dependency_user' should have logged \"$expected_message\"."
+    exit 1
+  fi
   exit 0
 }
 
