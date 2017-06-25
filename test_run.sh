@@ -362,6 +362,18 @@ scalac_jvm_flags_are_configured(){
   exit 0
 }
 
+javac_jvm_flags_are_configured(){
+  set +e
+
+  bazel build //test_expect_failure/compilers_jvm_flags:can_configure_jvm_flags_for_javac
+  if [ $? -eq 0 ]; then
+    echo "'bazel build test_expect_failure/compiler_jvm_flags:can_configure_jvm_flags_for_scalac' should have failed."
+    exit 1
+  fi
+  set -e
+  exit 0
+}
+
 if [ "$1" != "ci" ]; then
   runner="run_test_local"
 else
@@ -400,4 +412,5 @@ $runner bazel run test/src/main/scala/scala/test/large_classpath:largeClasspath
 $runner scala_test_test_filters
 $runner scala_junit_test_test_filter
 $runner scalac_jvm_flags_are_configured
+$runner javac_jvm_flags_are_configured
 $runner test_scala_library_expect_failure_on_missing_direct_deps

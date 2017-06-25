@@ -185,7 +185,6 @@ JarOutput: {out}
 JavacOpts: -encoding utf8 {javac_opts}
 JavacPath: {javac_path}
 JavaFiles: {java_files}
-JvmFlags: {jvm_flags}
 Manifest: {manifest}
 Plugins: {plugin_arg}
 PrintCompileTime: {print_compile_time}
@@ -211,11 +210,11 @@ EnableDependencyAnalyzer: {enable_dependency_analyzer}
         ijar_out=ijar_output_path,
         ijar_cmd_path=ijar_cmd_path,
         srcjars=",".join([f.path for f in all_srcjars]),
-        javac_opts=" ".join(ctx.attr.javacopts),
+        javac_opts=" ".join(ctx.attr.javacopts) + 
+                #  these are the flags passed to javac, which needs them prefixed by -J
+                " ".join(["-J" + flag for flag in ctx.attr.javac_jvm_flags]),
         javac_path=ctx.executable._javac.path,
         java_files=",".join([f.path for f in java_srcs]),
-        #  these are the flags passed to javac, which needs them prefixed by -J
-        jvm_flags=",".join(["-J" + flag for flag in ctx.attr.jvm_flags]),
         resource_src=",".join([f.path for f in ctx.files.resources]),
         resource_dest=",".join(
           [_adjust_resources_path_by_default_prefixes(f.path)[1] for f in ctx.files.resources]
@@ -653,6 +652,7 @@ _common_attrs = {
   "javacopts":attr.string_list(),
   "jvm_flags": attr.string_list(),
   "scalac_jvm_flags": attr.string_list(),
+  "javac_jvm_flags": attr.string_list(),
   "print_compile_time": attr.bool(default=False, mandatory=False),
   "enable_dependency_analyzer": attr.bool(default=True, mandatory=False),
   "dependency_analyzer_plugin": attr.label(default=Label("//plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
