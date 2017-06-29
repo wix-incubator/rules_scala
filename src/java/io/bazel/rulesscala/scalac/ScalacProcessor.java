@@ -214,7 +214,7 @@ class ScalacProcessor implements Processor {
             tmpPath.toString(),
             "-P:classpath-shrinker:direct-jars:" + String.join(":", ops.directJars),
             "-P:classpath-shrinker:indirect-jars:" + String.join(":", ops.indirectJars),
-            "-P:classpath-shrinker:indirect-targets:" + String.join(":", ops.indirectTargets),
+            "-P:classpath-shrinker:indirect-targets:" + String.join(":", targets),
     };
 
 
