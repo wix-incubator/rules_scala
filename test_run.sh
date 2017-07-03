@@ -71,6 +71,24 @@ test_scala_library_suite() {
   exit 0
 }
 
+test_scala_library_expect_failure_on_missing_direct_deps() {
+  expected_message="Target '//test_expect_failure/missing_direct_deps:direct_dependency' is used but isn't explicitly declared, please add it to the deps"
+  command='bazel build test_expect_failure/missing_direct_deps:transitive_dependency_user'
+  output=$($command 2>&1)
+  if [  $? -eq 0 ]; then
+    echo "$output"
+    echo "'bazel build of scala_library with missing direct deps should have failed."
+    exit 1
+  fi
+  echo "$output"
+  echo $output | grep "$expected_message"
+  if [ $? -ne 0 ]; then
+    echo "'bazel build test_expect_failure/missing_direct_deps:transitive_dependency_user' should have logged \"$expected_message\"."
+    exit 1
+  fi
+  exit 0
+}
+
 test_scala_junit_test_can_fail() {
   set +e
 
@@ -370,3 +388,4 @@ $runner scala_library_jar_without_srcs_must_include_filegroup_resources
 $runner bazel run test/src/main/scala/scala/test/large_classpath:largeClasspath
 $runner scala_test_test_filters
 $runner scala_junit_test_test_filter
+$runner test_scala_library_expect_failure_on_missing_direct_deps
