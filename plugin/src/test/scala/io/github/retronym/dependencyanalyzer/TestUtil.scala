@@ -1,11 +1,12 @@
 package plugin.src.test.scala.io.github.retronym.dependencyanalyzer
 
 import java.io.File
+import java.nio.file.Paths
 
 import coursier.maven.MavenRepository
 import coursier.{Cache, Dependency, Fetch, Resolution}
 
-import scala.reflect.internal.util.{BatchSourceFile, NoPosition}
+import scala.reflect.internal.util.BatchSourceFile
 import scala.reflect.io.VirtualDirectory
 import scala.tools.cmd.CommandLineParser
 import scala.tools.nsc.reporters.StoreReporter
@@ -60,16 +61,31 @@ object TestUtil {
   }
 
   def getResourceContent(resourceName: String): String = {
-    println("getResourceContent "+ resourceName)
+    println("getResourceContent " + resourceName)
     val resource = getClass.getClassLoader.getResourceAsStream(resourceName)
-    println("getResourceContent resource: "+ resource)
+    println("getResourceContent resource: " + resource)
 
     val file = scala.io.Source.fromInputStream(resource)
     file.getLines.mkString
   }
 
-  lazy val toolboxClasspath: String = getResourceContent("toolbox.classpath")
-  lazy val toolboxPluginOptions: String = getResourceContent("toolbox.plugin")
+  lazy val baseDir = {
+    val workingDir = System.getProperty("user.dir")
+    val workspaceStart = workingDir.indexOf("bazel-out/")
+    workingDir.substring(0, workspaceStart)
+  }
+
+  lazy val toolboxClasspath: String = {
+    val jar = System.getProperty("scala.library.location")
+    val pluginPath = Paths.get(baseDir, jar).toAbsolutePath
+    pluginPath.toString
+  }
+
+  lazy val toolboxPluginOptions: String = {
+    val jar = System.getProperty("plugin.jar.location")
+    val pluginPath = Paths.get(baseDir, jar).toAbsolutePath
+    s"-Xplugin:${pluginPath} -Jdummy=${pluginPath.toFile.lastModified}"
+  }
 
   private def createBasicCompileOptions(classpath: String, usePluginOptions: String) =
     s"-classpath $classpath $usePluginOptions"
