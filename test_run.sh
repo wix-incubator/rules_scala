@@ -107,6 +107,77 @@ test_scala_binary_expect_failure_on_missing_direct_deps() {
   exit 0
 }
 
+test_dependency_analyzer_modes() {
+  set +e
+
+  # Uncomment this if you run this test separately
+  #bazel clean
+
+  expected_message="error: Target '//test_expect_failure/dep_analyzer_modes:transitive_dependency' is used but isn't explicitly declared, please add it to the deps"
+  command='bazel build test_expect_failure/dep_analyzer_modes:error_mode'
+  output=$($command 2>&1)
+  if [  $? -eq 0 ]; then
+    echo "$output"
+    echo "'bazel build of scala_binary with missing direct deps should have failed."
+    exit 1
+  fi
+  echo "$output"
+  echo $output | grep "$expected_message"
+  if [ $? -ne 0 ]; then
+    echo "'bazel build test_expect_failure/dep_analyzer_modes:error_mode' should have logged \"$expected_message\"."
+    exit 1
+  fi
+
+  expected_message="warning: Target '//test_expect_failure/dep_analyzer_modes:transitive_dependency' is used but isn't explicitly declared, please add it to the deps"
+  command='bazel build test_expect_failure/dep_analyzer_modes:warn_mode'
+  output=$($command 2>&1)
+  if [  $? -ne 0 ]; then
+    echo "$output"
+    echo "'bazel build of scala_binary with missing direct deps should not have failed."
+    exit 1
+  fi
+  echo "$output"
+  echo $output | grep "$expected_message"
+  if [ $? -ne 0 ]; then
+    echo "'bazel build test_expect_failure/dep_analyzer_modes:warn_mode' should have logged \"$expected_message\"."
+    exit 1
+  fi
+
+  expected_message="Incorrect mode of dependency analyzer plugin! Mode must be 'error', 'warn' or 'off'."
+  command='bazel build test_expect_failure/dep_analyzer_modes:weird_mode'
+  output=$($command 2>&1)
+  if [  $? -eq 0 ]; then
+    echo "$output"
+    echo "'bazel build of scala_binary with missing direct deps should have failed."
+    exit 1
+  fi
+  echo "$output"
+  echo $output | grep "$expected_message"
+  if [ $? -ne 0 ]; then
+    echo "'bazel build test_expect_failure/dep_analyzer_modes:weird_mode' should have logged \"$expected_message\"."
+    exit 1
+  fi
+
+  expected_message="Target '//test_expect_failure/dep_analyzer_modes:transitive_dependency' is used but isn't explicitly declared, please add it to the deps"
+  command='bazel build test_expect_failure/dep_analyzer_modes:off_mode'
+  output=$($command 2>&1)
+  if [  $? -ne 0 ]; then
+    echo "$output"
+    echo "'bazel build of scala_binary with missing direct deps should not have failed."
+    exit 1
+  fi
+  echo "$output"
+  echo $output | grep "$expected_message"
+  if [ $? -eq 0 ]; then
+    echo "'bazel build test_expect_failure/dep_analyzer_modes:off_mode' should not have logged \"$expected_message\"."
+    exit 1
+  fi
+
+
+  set -e
+  exit 0
+}
+
 test_scala_junit_test_can_fail() {
   action_should_fail test test_expect_failure/scala_junit_test:failing_test
 }
@@ -401,3 +472,4 @@ $runner scalac_jvm_flags_are_configured
 $runner javac_jvm_flags_are_configured
 $runner test_scala_library_expect_failure_on_missing_direct_deps
 $runner test_scala_binary_expect_failure_on_missing_direct_deps
+$runner test_dependency_analyzer_modes
