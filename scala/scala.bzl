@@ -164,12 +164,14 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, rjars=[], labels = {}):
     plugins = _collect_plugin_paths(ctx.attr.plugins)
     dependency_analyzer_plugin_jars = []
     dependency_analyzer_mode = "off"
+    all_jars = cjars
 
     if (hasattr(ctx.attr, 'dependency_analyzer_mode')
         and hasattr(ctx.attr, 'dependency_analyzer_plugin')):
       if (ctx.attr.dependency_analyzer_mode not in ["error", "warn", "off"]):
         fail("Incorrect mode of dependency analyzer plugin! Mode must be 'error', 'warn' or 'off'")
       elif (ctx.attr.dependency_analyzer_mode != "off"):
+        all_jars += rjars
         dependency_analyzer_mode = ctx.attr.dependency_analyzer_mode
         dep_plugin = ctx.attr.dependency_analyzer_plugin
         plugins += [f.path for f in dep_plugin.files]
@@ -177,7 +179,6 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, rjars=[], labels = {}):
 
     plugin_arg = ",".join(list(plugins))
 
-    all_jars = cjars + rjars
     compiler_classpath = ":".join([j.path for j in all_jars])
     direct_jars = ",".join([j.path for j in cjars])
 
