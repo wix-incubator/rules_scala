@@ -740,7 +740,7 @@ _common_attrs_for_plugin_bootstrapping = {
 }
 
 _common_attrs = _common_attrs_for_plugin_bootstrapping + {
-  "dependency_analyzer_mode": attr.string(default="error", mandatory=False),
+  "dependency_analyzer_mode": attr.string(default="off", mandatory=False),
   "_dependency_analyzer_plugin": attr.label(default=Label("@io_bazel_rules_scala//third_party/plugin/src/main:dependency_analyzer"), allow_files=_jar_filetype, mandatory=False),
 }
 
