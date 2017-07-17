@@ -167,23 +167,26 @@ def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_cjars=[], labels = {
     compiler_classpath_jars = cjars
 
     # "off" mode is used as a feature toggle, that preserves original behaviour
-    if (hasattr(ctx.attr, 'dependency_analyzer_mode')):
-      if (ctx.attr.dependency_analyzer_mode not in ["error", "warn", "off"]):
-        fail("Incorrect mode of dependency analyzer plugin! Mode must be 'error', 'warn' or 'off'")
-      elif (ctx.attr.dependency_analyzer_mode != "off"):
-        dependency_analyzer_mode = ctx.attr.dependency_analyzer_mode
-        dep_plugin = ctx.attr._dependency_analyzer_plugin
-        plugins += [f.path for f in dep_plugin.files]
-        dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
-        compiler_classpath_jars = cjars + transitive_cjars
+#    if (hasattr(ctx.attr, 'dependency_analyzer_mode')):
+#      if (ctx.attr.dependency_analyzer_mode not in ["error", "warn", "off"]):
+#        fail("Incorrect mode of dependency analyzer plugin! Mode must be 'error', 'warn' or 'off'")
+#      elif (ctx.attr.dependency_analyzer_mode != "off"):
+#        dependency_analyzer_mode = ctx.attr.dependency_analyzer_mode
+#        dep_plugin = ctx.attr._dependency_analyzer_plugin
+#        plugins += [f.path for f in dep_plugin.files]
+#        dependency_analyzer_plugin_jars = ctx.files._dependency_analyzer_plugin
+#        compiler_classpath_jars = cjars + transitive_cjars
 
     plugin_arg = ",".join(list(plugins))
 
     compiler_classpath = ":".join([j.path for j in compiler_classpath_jars])
-    direct_jars = ",".join([j.path for j in cjars])
+    direct_jars = ""
+#    ",".join([j.path for j in cjars])
 
-    indirect_jars = ",".join([j.path for j in transitive_cjars])
-    indirect_targets = ",".join([labels[j.path] for j in transitive_cjars])
+    indirect_jars = ""
+#    ",".join([j.path for j in transitive_cjars])
+    indirect_targets = ""
+#    ",".join([labels[j.path] for j in transitive_cjars])
 
     scalac_args = """
 Classpath: {cp}
@@ -422,10 +425,10 @@ def _collect_jars(dep_targets):
     transitive_cjars = depset()
     jars2labels = {}
     for dep_target in dep_targets:
-        if dep_target_contains_ijar(dep_target):
-          transitive_cjars += [dep_target.scala.outputs.ijar]
-        if hasattr(dep_target, 'transitive_cjars'):
-          transitive_cjars += dep_target.transitive_cjars
+#        if dep_target_contains_ijar(dep_target):
+#          transitive_cjars += [dep_target.scala.outputs.ijar]
+#        if hasattr(dep_target, 'transitive_cjars'):
+#          transitive_cjars += dep_target.transitive_cjars
         if java_common.provider in dep_target:
             java_provider = dep_target[java_common.provider]
             compile_jars += java_provider.compile_jars
@@ -436,9 +439,9 @@ def _collect_jars(dep_targets):
             # which breaks scala macros
             compile_jars += dep_target.files
             runtime_jars += dep_target.files
-            transitive_cjars += dep_target.files
+#            transitive_cjars += dep_target.files
 
-        add_labels_of_jars_to(jars2labels, dep_target, transitive_cjars)
+#        add_labels_of_jars_to(jars2labels, dep_target, transitive_cjars)
 
     return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, jars2labels=jars2labels, transitive_cjars=transitive_cjars)
 
@@ -454,7 +457,7 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
     runtime_dep_jars =  _collect_jars(ctx.attr.runtime_deps + extra_runtime_deps)
     transitive_rjars += runtime_dep_jars.transitive_runtime_jars
 
-    jars2labels.update(runtime_dep_jars.jars2labels)
+#    jars2labels.update(runtime_dep_jars.jars2labels)
     return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, jars2labels=jars2labels, transitive_cjars = transitive_cjars)
 
 def _lib(ctx, non_macro_lib):
@@ -523,8 +526,8 @@ def _lib(ctx, non_macro_lib):
         # this information through, and it is up to the new_targets
         # to filter and make sense of this information.
         extra_information=_collect_extra_information(ctx.attr.deps),
-        jars_to_labels = jars.jars2labels,
-        transitive_cjars = jars.transitive_cjars,
+#        jars_to_labels = jars.jars2labels,
+#        transitive_cjars = jars.transitive_cjars,
       )
 
 
