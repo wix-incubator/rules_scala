@@ -149,7 +149,7 @@ def _collect_plugin_paths(plugins):
     return paths
 
 
-def _compile(ctx, cjars, dep_srcjars, buildijar):
+def _compile(ctx, cjars, dep_srcjars, buildijar, transitive_cjars=[]):
     ijar_output_path = ""
     ijar_cmd_path = ""
     if buildijar:
@@ -168,6 +168,9 @@ def _compile(ctx, cjars, dep_srcjars, buildijar):
     plugin_arg = ",".join(list(plugins))
 
     compiler_classpath = ":".join([j.path for j in compiler_classpath_jars])
+    direct_jars = ",".join([j.path for j in cjars])
+
+    indirect_jars = ",".join([j.path for j in transitive_cjars])
 
     scalac_args = """
 Classpath: {cp}
@@ -188,6 +191,8 @@ ResourceSrcs: {resource_src}
 ResourceStripPrefix: {resource_strip_prefix}
 ScalacOpts: {scala_opts}
 SourceJars: {srcjars}
+DirectJars: {direct_jars}
+IndirectJars: {indirect_jars}
 DependencyAnalyzerMode: {dependency_analyzer_mode}
 """.format(
         out=ctx.outputs.jar.path,
@@ -201,7 +206,7 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
         ijar_out=ijar_output_path,
         ijar_cmd_path=ijar_cmd_path,
         srcjars=",".join([f.path for f in all_srcjars]),
-        javac_opts=" ".join(ctx.attr.javacopts) + 
+        javac_opts=" ".join(ctx.attr.javacopts) +
                 #  these are the flags passed to javac, which needs them prefixed by -J
                 " ".join(["-J" + flag for flag in ctx.attr.javac_jvm_flags]),
         javac_path=ctx.executable._javac.path,
@@ -212,6 +217,8 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
           ),
         resource_strip_prefix=ctx.attr.resource_strip_prefix,
         resource_jars=",".join([f.path for f in ctx.files.resource_jars]),
+        direct_jars=direct_jars,
+        indirect_jars=indirect_jars,
         dependency_analyzer_mode = dependency_analyzer_mode,
         )
     argfile = ctx.new_file(
@@ -260,14 +267,14 @@ DependencyAnalyzerMode: {dependency_analyzer_mode}
       )
 
 
-def _compile_or_empty(ctx, jars, srcjars, buildijar):
+def _compile_or_empty(ctx, jars, srcjars, buildijar, transitive_cjars = []):
     # We assume that if a srcjar is present, it is not empty
     if len(ctx.files.srcs) + len(srcjars) == 0:
         _build_nosrc_jar(ctx, buildijar)
         #  no need to build ijar when empty
         return struct(ijar=ctx.outputs.jar, class_jar=ctx.outputs.jar)
     else:
-        _compile(ctx, jars, srcjars, buildijar)
+        _compile(ctx, jars, srcjars, buildijar, transitive_cjars)
         ijar = None
         if buildijar:
             ijar = ctx.outputs.ijar
@@ -417,7 +424,7 @@ def _lib(ctx, non_macro_lib):
     (cjars, transitive_rjars) = (jars.compile_jars, jars.transitive_runtime_jars)
 
     write_manifest(ctx)
-    outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib)
+    outputs = _compile_or_empty(ctx, cjars, srcjars, non_macro_lib, jars.transitive_cjars)
 
     transitive_rjars += [ctx.outputs.jar]
 
