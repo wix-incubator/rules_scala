@@ -373,6 +373,28 @@ def collect_srcjars(targets):
             srcjars += [target.srcjars.srcjar]
     return srcjars
 
+def add_labels_of_jars_to(jars2labels, dependency, all_jars):
+  for jar in all_jars:
+   add_label_of_jar_to(jars2labels, dependency, jar)
+
+
+def add_label_of_jar_to(jars2labels, dependency, jar):
+ if label_already_exists(jars2labels, jar):
+   return
+
+ # skylark exposes only labels of direct dependencies.
+ # to get labels of indirect dependencies we collect them from the providers transitively
+ if provider_of_dependency_contains_label_of(dependency, jar):
+   jars2labels[jar.path] = dependency.jars_to_labels[jar.path]
+ else:
+   jars2labels[jar.path] = dependency.label
+
+def label_already_exists(jars2labels, jar):
+  return jar.path in jars2labels
+
+def provider_of_dependency_contains_label_of(dependency, jar):
+ return hasattr(dependency, "jars_to_labels") and jar.path in dependency.jars_to_labels
+
 def dep_target_contains_ijar(dep_target):
   return hasattr(dep_target, 'scala') and hasattr(dep_target.scala, 'outputs') and hasattr(dep_target.scala.outputs, 'ijar')
 
@@ -381,6 +403,7 @@ def _collect_jars(dep_targets):
     compile_jars = depset()
     runtime_jars = depset()
     transitive_cjars = depset()
+    jars2labels = {}
     for dep_target in dep_targets:
         if dep_target_contains_ijar(dep_target):
           transitive_cjars += [dep_target.scala.outputs.ijar]
@@ -398,7 +421,9 @@ def _collect_jars(dep_targets):
             runtime_jars += dep_target.files
             transitive_cjars += dep_target.files
 
-    return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, transitive_cjars=transitive_cjars)
+        add_labels_of_jars_to(jars2labels, dep_target, transitive_cjars)
+
+    return struct(compile_jars = compile_jars, transitive_runtime_jars = runtime_jars, jars2labels=jars2labels, transitive_cjars=transitive_cjars)
 
 # Extract very common code out from dependency analysis into single place
 # automatically adds dependency on scala-library and scala-reflect
@@ -407,12 +432,13 @@ def _collect_jars_from_common_ctx(ctx, extra_deps = [], extra_runtime_deps = [])
     # Get jars from deps
     auto_deps = [ctx.attr._scalalib, ctx.attr._scalareflect]
     deps_jars = _collect_jars(ctx.attr.deps + auto_deps + extra_deps)
-    (cjars, transitive_rjars, transitive_cjars) = (deps_jars.compile_jars, deps_jars.transitive_runtime_jars, deps_jars.transitive_cjars)
+    (cjars, transitive_rjars, jars2labels, transitive_cjars) = (deps_jars.compile_jars, deps_jars.transitive_runtime_jars, deps_jars.jars2labels, deps_jars.transitive_cjars)
 
     runtime_dep_jars =  _collect_jars(ctx.attr.runtime_deps + extra_runtime_deps)
     transitive_rjars += runtime_dep_jars.transitive_runtime_jars
 
-    return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, transitive_cjars = transitive_cjars)
+    jars2labels.update(runtime_dep_jars.jars2labels)
+    return struct(compile_jars = cjars, transitive_runtime_jars = transitive_rjars, jars2labels=jars2labels, transitive_cjars = transitive_cjars)
 
 def _lib(ctx, non_macro_lib):
     # Build up information from dependency-like attributes
@@ -480,6 +506,7 @@ def _lib(ctx, non_macro_lib):
         # this information through, and it is up to the new_targets
         # to filter and make sense of this information.
         extra_information=_collect_extra_information(ctx.attr.deps),
+        jars_to_labels = jars.jars2labels,
         transitive_cjars = jars.transitive_cjars,
       )
 
