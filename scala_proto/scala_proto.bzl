@@ -1,8 +1,5 @@
 load("//scala:scala.bzl",
-  "scala_mvn_artifact",
-  "scala_library",
-  "collect_jars",
-  "create_java_provider")
+  "scala_library")
 
 def scala_proto_repositories():
     native.maven_server(
@@ -24,7 +21,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_plugin",
-        artifact = scala_mvn_artifact("com.trueaccord.scalapb:compilerplugin:0.6.5"),
+        artifact = "com.trueaccord.scalapb:compilerplugin_2.12:0.6.5",
         sha1 = "d119bb24e976dacae8f55a678a027d59bc50ffac",
         server = "scala_proto_deps_maven_server",
     )
@@ -36,7 +33,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_protoc_bridge",
-        artifact = scala_mvn_artifact("com.trueaccord.scalapb:protoc-bridge:0.3.0-M1"),
+        artifact = "com.trueaccord.scalapb:protoc-bridge_2.12:0.3.0-M1",
         sha1 = "1de84a8176cf0192b68b2873364e26cb4da61a7a",
         server = "scala_proto_deps_maven_server",
     )
@@ -48,7 +45,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapbc",
-        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapbc:0.6.5"),
+        artifact = "com.trueaccord.scalapb:scalapbc_2.12:0.6.5",
         sha1 = "7dd00d1d5b03be9879194bf917738d69b0126fab",
         server = "scala_proto_deps_maven_server",
     )
@@ -60,7 +57,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_runtime",
-        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapb-runtime:0.6.5"),
+        artifact = "com.trueaccord.scalapb:scalapb-runtime_2.12:0.6.5",
         sha1 = "5375ad64f0cc26b8e8a9377811f9b97645d24bac",
         server = "scala_proto_deps_maven_server",
     )
@@ -72,7 +69,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_runtime_grpc",
-        artifact = scala_mvn_artifact("com.trueaccord.scalapb:scalapb-runtime-grpc:0.6.5"),
+        artifact = "com.trueaccord.scalapb:scalapb-runtime-grpc_2.12:0.6.5",
         sha1 = "64885c5d96be6ecdfccdb27ca2bdef3ed9ce9fb4",
         server = "scala_proto_deps_maven_server",
     )
@@ -84,7 +81,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_lenses",
-        artifact = scala_mvn_artifact("com.trueaccord.lenses:lenses:0.4.12"),
+        artifact = "com.trueaccord.lenses:lenses_2.12:0.4.12",
         sha1 = "d97d2958814bcfe2f19e1ed2f0f03fd9da5a3961",
         server = "scala_proto_deps_maven_server",
     )
@@ -96,7 +93,7 @@ def scala_proto_repositories():
 
     native.maven_jar(
         name = "scala_proto_rules_scalapb_fastparse",
-        artifact = scala_mvn_artifact("com.lihaoyi:fastparse:0.4.4"),
+        artifact = "com.lihaoyi:fastparse_2.12:0.4.4",
         sha1 = "aaf2048f9c6223220eac28c9b6a442f27ba83c55",
         server = "scala_proto_deps_maven_server",
     )
@@ -310,29 +307,13 @@ def scala_proto_repositories():
         actual = '@scala_proto_rules_netty_handler_proxy//jar'
     )
 
-def _root_path(f):
-    if f.is_source:
-        return f.owner.workspace_root
-    return '/'.join([f.root.path, f.owner.workspace_root])
-
 def _colon_paths(data):
-    return ':'.join(["{root},{path}".format(root=_root_path(f), path=f.path) for f in data])
+  return ':'.join([f.path for f in data])
 
 def _gen_proto_srcjar_impl(ctx):
     acc_imports = depset()
-
-    proto_deps, jvm_deps = [], []
     for target in ctx.attr.deps:
-        if hasattr(target, 'proto'):
-            proto_deps.append(target)
-            acc_imports += target.proto.transitive_sources
-        else:
-            jvm_deps.append(target)
-
-    if "java_conversions" in ctx.attr.flags and len(jvm_deps) == 0:
-        fail("must have at least one jvm dependency if with_java is True (java_conversions is turned on)")
-
-    deps_jars = collect_jars(jvm_deps)
+        acc_imports += target.proto.transitive_sources
 
     worker_content = "{output}\n{paths}\n{flags_arg}".format(
         output = ctx.outputs.srcjar.path,
@@ -354,15 +335,7 @@ def _gen_proto_srcjar_impl(ctx):
     srcjarsattr = struct(
         srcjar = ctx.outputs.srcjar,
     )
-    scalaattr = struct(
-      outputs = None,
-      compile_jars =  deps_jars.compile_jars,
-      transitive_runtime_jars = deps_jars.transitive_runtime_jars,
-    )
-    java_provider = create_java_provider(scalaattr, depset())
     return struct(
-        scala = scalaattr,
-        providers = [java_provider],
         srcjars=srcjarsattr,
         extra_information=[struct(
           srcjars=srcjarsattr,
@@ -374,7 +347,7 @@ scala_proto_srcjar = rule(
     attrs={
         "deps": attr.label_list(
             mandatory=True,
-            allow_rules=["proto_library", "java_proto_library", "java_library", "scala_library"]
+            allow_rules=["proto_library"]
         ),
         "flags": attr.string_list(default=[]),
         "generator": attr.label(
@@ -427,7 +400,7 @@ Example:
 
 Args:
     name: A unique name for this rule
-    deps: Proto library or java proto library (if with_java is True) targets that this rule depends on
+    deps: Proto library targets that this rule depends on (must be of type proto_library)
     with_grpc: Enables generation of grpc service bindings for services defined in deps
     with_java: Enables generation of converters to and from java protobuf bindings
     with_flat_package: When true, ScalaPB will not append the protofile base name to the package name
@@ -466,9 +439,19 @@ def scalapb_proto_library(
 
     external_deps = list(SCALAPB_DEPS + GRPC_DEPS if (with_grpc) else SCALAPB_DEPS)
 
+    if with_java:
+        java_proto_lib = name + "_java_lib"
+        native.java_proto_library(
+            name = java_proto_lib,
+            deps = deps,
+            visibility = visibility,
+        )
+        external_deps.append(java_proto_lib)
+
     scala_library(
         name = name,
-        deps = [srcjar] + external_deps,
+        srcs = [srcjar],
+        deps = external_deps,
         exports = external_deps,
         visibility = visibility,
     )
