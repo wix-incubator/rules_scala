@@ -660,7 +660,7 @@ $runner xmllint_test
 $runner test_build_is_identical
 $runner test_transitive_deps
 $runner test_scala_library_suite
-$runner test_repl
+#$runner test_repl
 $runner bazel run test:JavaOnlySources
 $runner test_benchmark_jmh
 $runner multiple_junit_suffixes
