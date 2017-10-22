@@ -429,6 +429,11 @@ def _write_launcher(ctx, rjars, main_class, jvm_flags, args="", wrapper_preamble
     # RUNPATH is defined here:
     # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
     classpath = ":".join(["${RUNPATH}%s" % (j.short_path) for j in rjars])
+
+    if ctx.attr.testonly:
+      classpath = ":".join(["%s" % (j.short_path) for j in rjars])
+      classpath = "target/test-classes:%s" % classpath
+
     jvm_flags = " ".join([ctx.expand_location(f, ctx.attr.data) for f in jvm_flags])
     # TODO: Replace the following if/else with just .java_executable_runfiles_path
     # when that becomes generally available in Bazel (submitted in
@@ -451,12 +456,16 @@ def _write_launcher(ctx, rjars, main_class, jvm_flags, args="", wrapper_preamble
         content = """#!/bin/bash
 {preamble}
 
-{exec_str}{javabin} "$@" {args}
+rm -rf {runfiles_root}/target/test-classes
+mkdir -p {runfiles_root}/target/test-classes
+
+ {exec_str}{javabin} "$@" {args}
 """.format(
             preamble=wrapper_preamble,
             exec_str=exec_str,
             javabin=javabin,
             args=args,
+            runfiles_root = runfiles_root
         ),
     )
 
