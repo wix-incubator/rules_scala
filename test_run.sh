@@ -101,6 +101,26 @@ test_expect_failure_or_warning_on_missing_direct_deps_with_expected_message() {
   set -e
 }
 
+test_expect_success_on_transitive_dependency() {
+  set +e
+
+  test_target='//test_expect_failure/missing_direct_deps/no_missing_direct_deps:c'
+  strict_deps_mode="--strict_java_deps=error"
+
+  command="bazel build ${test_target} ${strict_deps_mode}"
+
+  output=$(${command} 2>&1)
+  status_code=$?
+
+  echo "$output"
+  if [ ${status_code} -ne 0 ]; then
+    echo "'bazel build ${test_target}' should have succeeded."
+    exit 1
+  fi
+
+  set -e
+}
+
 test_scala_library_expect_failure_on_missing_direct_deps_strict_is_disabled_by_default() {
   expected_message="not found: value C"
   test_target='test_expect_failure/missing_direct_deps/internal_deps:transitive_dependency_user'
@@ -604,3 +624,4 @@ $runner test_scala_library_expect_failure_on_missing_direct_java
 $runner bazel run test:test_scala_proto_server
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
+$runner test_expect_success_on_transitive_dependency
