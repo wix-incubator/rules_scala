@@ -1203,7 +1203,16 @@ _scala_junit_test_attrs.update(_common_attrs)
 _scala_junit_test_attrs.update(_junit_resolve_deps)
 scala_junit_test = rule(
   implementation=_scala_junit_test_impl,
-  attrs= _scala_junit_test_attrs,
+  attrs= _launcher_template + _implicit_deps + _common_attrs + _junit_resolve_deps + {
+      "prefixes": attr.string_list(default=[]),
+      "suffixes": attr.string_list(default=[]),
+      "suite_label": attr.label(default=Label("//src/java/io/bazel/rulesscala/test_discovery:test_discovery")),
+      "suite_class": attr.string(default="io.bazel.rulesscala.test_discovery.DiscoveredTestSuite"),
+      "print_discovered_classes": attr.bool(default=False, mandatory=False),
+      "_junit": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/junit/junit")),
+      "_hamcrest": attr.label(default=Label("//external:io_bazel_rules_scala/dependency/hamcrest/hamcrest_core")),
+      "_bazel_test_runner": attr.label(default=Label("@bazel_tools//tools/jdk:TestRunner_deploy.jar"), allow_files=True),
+      },
   outputs= common_outputs,
   test=True,
   fragments = ["java"],

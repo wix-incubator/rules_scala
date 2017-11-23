@@ -34,29 +34,7 @@ object Specs2FilteringRunnerBuilder {
 class Specs2ClassRunner(testClass: Class[_], testFilter: Pattern)
   extends org.specs2.runner.JUnitRunner(testClass) {
 
-  /** Taken from specs2: replaces () with [] because it cause display issues in JUnit plugins */
-  private def sanitize(testName: String) = {
-    val sanitized = testName.trim.replace('(', '[').replace(')', ']')
-    if (sanitized.isEmpty) " "
-    else sanitized
-  }
-
-  /**
-    * Retrieves an original (unsanitized) text of an example fragment,
-    * used later as a regex string for specs2 matching.
-    *
-    * This is done by matching the actual (sanitized) string with the sanitized version
-    * of the original example text.
-    */
-  private def specs2Description(desc: String): String = this.specStructure.examples
-      .map(fragment => fragment.description.show)
-      .find(sanitize(_) == desc)
-      .getOrElse(desc)
-
-  private def toDisplayName(description: Description): Option[String] = for {
-      name <- Option(description.getMethodName)
-      desc <- name.split("::").reverse.headOption
-    } yield specs2Description(desc)
+  private def toDisplayName(d: Description) = d.getMethodName.split("::").reverse.headOption.getOrElse(d.getMethodName)
 
   /**
     * Turns a JUnit description structure into a flat list:
@@ -86,15 +64,18 @@ class Specs2ClassRunner(testClass: Class[_], testFilter: Pattern)
     testFilter.matcher(testCase).matches
   }
 
-  private def specs2ExamplesMatching(testFilter: Pattern, junitDescription: Description): List[String] =
+  private def specs2ExamplesMatching(testFilter: Pattern, junitDescription: Description): Option[String] =
     flattenDescription(junitDescription)
       .filter(matching(testFilter))
-      .flatMap(toDisplayName)
+      .map(toDisplayName)
+      .mkString(",")
+      .toOption
 
   override def runWithEnv(n: RunNotifier, env: Env): Action[Stats] = {
-    val specs2MatchedExamplesRegex = specs2ExamplesMatching(testFilter, getDescription).toRegexAlternation
+    val specs2MatchedExamples = specs2ExamplesMatching(testFilter, getDescription)
 
-    val newArgs = Arguments(select = Select(_ex = specs2MatchedExamplesRegex), commandLine = CommandLine.create(testClass.getName))
+    // todo escape fragment if needed (e.g. contains + or other regex-specific characters)
+    val newArgs = Arguments(select = Select(_ex = specs2MatchedExamples), commandLine = CommandLine.create(testClass.getName))
     val newEnv = env.copy(arguments overrideWith newArgs)
 
     super.runWithEnv(n, newEnv)
@@ -102,11 +83,5 @@ class Specs2ClassRunner(testClass: Class[_], testFilter: Pattern)
 
   private implicit class `Empty String to Option`(s: String) {
     def toOption: Option[String] = if (s.isEmpty) None else Some(s)
-    def toQuotedRegex: String = if (s.isEmpty) s else Pattern.quote(s)
-  }
-  private implicit class `Collection Regex Extensions`(coll: List[String]) {
-    def toRegexAlternation: Option[String] =
-      if (coll.isEmpty) None
-      else Some(coll.map(_.toQuotedRegex).mkString("(", "|", ")"))
   }
 }
