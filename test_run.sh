@@ -208,6 +208,10 @@ test_scala_junit_test_can_fail() {
   action_should_fail test test_expect_failure/scala_junit_test:failing_test
 }
 
+test_scalaopts_from_scala_toolchain() {
+  action_should_fail build test_expect_failure/scalacopts_from_toolchain:failing_build
+}
+
 test_repl() {
   echo "import scala.test._; HelloLib.printMessage(\"foo\")" | bazel-bin/test/HelloLibRepl | grep "foo java" &&
   echo "import scala.test._; TestUtil.foo" | bazel-bin/test/HelloLibTestRepl | grep "bar" &&
@@ -776,3 +780,4 @@ $runner bazel run test:test_scala_proto_server
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode_java
 $runner test_scala_library_expect_better_failure_message_on_missing_transitive_dependency_labels_from_other_jvm_rules
 $runner test_scala_library_expect_failure_on_missing_direct_deps_warn_mode2
+$runner test_scalaopts_from_scala_toolchain
