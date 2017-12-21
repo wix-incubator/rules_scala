@@ -329,8 +329,8 @@ def _gen_proto_srcjar_impl(ctx):
         else:
             jvm_deps.append(target)
 
-    if ctx.attr.with_java and len(jvm_deps) == 0:
-        fail("must have at least one jvm dependency if with_java is True")
+    if "java_conversions" in ctx.attr.flags and len(jvm_deps) == 0:
+        fail("must have at least one jvm dependency if with_java is True (java_conversions is turned on)")
 
     deps_jars = collect_jars(jvm_deps)
 
@@ -459,7 +459,7 @@ def scalapb_proto_library(
     scala_proto_srcjar(
         name = srcjar,
         flags = flags,
-        generator = "@io_bazel_rules_scala//src/scala/scripts:scalapb_generator",
+        generator = "//src/scala/scripts:scalapb_generator",
         deps = deps,
         visibility = visibility,
     )
