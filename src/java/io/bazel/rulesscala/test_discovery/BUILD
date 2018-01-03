@@ -5,6 +5,7 @@ scala_library(
     srcs = [
         "DiscoveredTestSuite.scala",
         "FilteredRunnerBuilder.scala",
+        "ReflectionUtils.scala"
     ],
     visibility = ["//visibility:public"],
     deps = ["//external:io_bazel_rules_scala/dependency/junit/junit"]
