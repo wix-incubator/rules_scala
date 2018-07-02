@@ -806,6 +806,14 @@ $runner bazel test third_party/...
 $runner bazel build "test/... --strict_java_deps=ERROR"
 #$runner bazel build "test/... --strict_java_deps=ERROR --all_incompatible_changes"
 $runner bazel test "test/... --strict_java_deps=ERROR"
+#$runner bazel run test/src/main/scala/scalarules/test/twitter_scrooge:justscrooges
+$runner bazel run test:JavaBinary
+$runner bazel run test:JavaBinary2
+$runner bazel run test:JavaOnlySources
+$runner bazel run test:MixJavaScalaLibBinary
+$runner bazel run test:MixJavaScalaSrcjarLibBinary
+$runner bazel run test:ScalaBinary
+$runner bazel run test:ScalaLibBinary
 $runner test_disappearing_class
 $runner find -L ./bazel-testlogs -iname "*.xml"
 $runner xmllint_test
