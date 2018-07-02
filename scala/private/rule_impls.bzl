@@ -491,12 +491,16 @@ def _write_java_wrapper(ctx, args = "", wrapper_preamble = ""):
       content = """#!/bin/bash
 {preamble}
 
+rm -rf {runfiles_root}/target/test-classes
+mkdir -p {runfiles_root}/target/test-classes
+
 {exec_str}{javabin} "$@" {args}
 """.format(
           preamble = wrapper_preamble,
           exec_str = exec_str,
           javabin = javabin,
           args = args,
+          runfiles_root = _runfiles_root(ctx)
       ),
       is_executable = True)
   return wrapper
@@ -507,6 +511,9 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
   # https://github.com/bazelbuild/bazel/blob/0.4.5/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt#L227
   classpath = ":".join(
       ["${RUNPATH}%s" % (j.short_path) for j in rjars.to_list()])
+  if ctx.attr.testonly:
+        classpath = ":".join(["%s" % (j.short_path) for j in rjars])
+        classpath = "target/test-classes:%s" % classpath
   jvm_flags = " ".join(
       [ctx.expand_location(f, ctx.attr.data) for f in jvm_flags])
   ctx.actions.expand_template(
