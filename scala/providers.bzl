@@ -1,11 +1,11 @@
 # TODO: this should really be a bazel provider, but we are using old-style rule outputs
 # we need to document better what the intellij dependencies on this code actually are
 def create_scala_provider(ijar, class_jar, compile_jars,
-                          transitive_runtime_jars, deploy_jar, full_jars,
+                          transitive_runtime_jars, deploy_jar, full_jars, source_jar,
                           statsfile):
 
   formatted_for_intellij = [
-      struct(class_jar = jar, ijar = None, source_jar = None, source_jars = [])
+      struct(class_jar = jar, ijar = None, source_jar = None, source_jars = [source_jar])
       for jar in full_jars
   ]
 

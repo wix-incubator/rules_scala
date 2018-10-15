@@ -631,6 +631,8 @@ def _lib(ctx, base_classpath, non_macro_lib, unused_dependency_checker_mode,
   transitive_rjars = depset(
       transitive = [transitive_rjars, exports_jars.transitive_runtime_jars])
 
+  source_jar = _pack_sources(ctx)
+
   scalaattr = create_scala_provider(
       ijar = outputs.ijar,
       class_jar = outputs.class_jar,
@@ -639,7 +641,8 @@ def _lib(ctx, base_classpath, non_macro_lib, unused_dependency_checker_mode,
       transitive_runtime_jars = transitive_rjars,
       deploy_jar = ctx.outputs.deploy_jar,
       full_jars = outputs.full_jars,
-      statsfile = ctx.outputs.statsfile)
+      statsfile = ctx.outputs.statsfile,
+      source_jar = source_jar)
 
   java_provider = create_java_provider(scalaattr, jars.transitive_compile_jars)
 
@@ -720,6 +723,8 @@ def _scala_binary_common(
           transitive = [rjars]),
       collect_data = True)
 
+  source_jar = _pack_sources(ctx)
+
   scalaattr = create_scala_provider(
       ijar = outputs.class_jar,  # we aren't using ijar here
       class_jar = outputs.class_jar,
@@ -727,7 +732,8 @@ def _scala_binary_common(
       transitive_runtime_jars = rjars,
       deploy_jar = ctx.outputs.deploy_jar,
       full_jars = outputs.full_jars,
-      statsfile = ctx.outputs.statsfile)
+      statsfile = ctx.outputs.statsfile,
+      source_jar = source_jar)
 
   java_provider = create_java_provider(scalaattr, transitive_compile_time_jars)
 
@@ -738,6 +744,23 @@ def _scala_binary_common(
       transitive_rjars =
       rjars,  #calling rules need this for the classpath in the launcher
       runfiles = runfiles)
+
+def _pack_sources(ctx):
+  java_srcs = [
+      f for f in ctx.files.srcs if f.basename.endswith(_java_extension)
+  ]
+  sources = [
+      f for f in ctx.files.srcs if f.basename.endswith(_scala_extension)
+  ] + java_srcs
+
+  source_jar = java_common.pack_sources(
+      ctx.actions,
+      output_jar = ctx.outputs.jar,
+      sources = sources,
+      java_toolchain = ctx.attr._java_toolchain,
+      host_javabase = ctx.attr._host_javabase
+  )
+  return source_jar
 
 def scala_binary_impl(ctx):
   scalac_provider = _scalac_provider(ctx)
