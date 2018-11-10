@@ -57,6 +57,7 @@ def _collect_jars_when_dependency_analyzer_is_off(
       transitive_compile_jars = depset())
 
 def _collect_jars_when_dependency_analyzer_is_on(dep_targets):
+  print("trying to invalidate cache")
   transitive_compile_jars = []
   jars2labels = {}
   compile_jars = []
