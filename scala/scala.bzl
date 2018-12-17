@@ -290,36 +290,44 @@ def _default_scala_extra_jars():
             "scalatest": {
                 "version": "3.0.5",
                 "sha256": "2aafeb41257912cbba95f9d747df9ecdc7ff43f039d35014b4c2a8eb7ed9ba2f",
+                "srcjar_sha256": "99966e19996488c5e08b73ebf8baad0ec456aa03e6b167814f7a587b2f50230c",
             },
             "scalactic": {
                 "version": "3.0.5",
                 "sha256": "84723064f5716f38990fe6e65468aa39700c725484efceef015771d267341cf2",
+                "srcjar_sha256": "b58cd691c1eda023e349e840ee55eb289ac5789c9642b5ac427932747ca38d52",
             },
             "scala_xml": {
                 "version": "1.0.5",
                 "sha256": "767e11f33eddcd506980f0ff213f9d553a6a21802e3be1330345f62f7ee3d50f",
+                "srcjar_sha256": "c472bfbcccdd7b3843b4970f4538e943baccffa8ec21b4d7fea13274551e71b7",
             },
             "scala_parser_combinators": {
                 "version": "1.0.4",
                 "sha256": "0dfaafce29a9a245b0a9180ec2c1073d2bd8f0330f03a9f1f6a74d1bc83f62d6",
+                "srcjar_sha256": "8b8155720b40c0f7aee7dbc19d4b407307f6e57dd5394b58a3bc9849e28d25c1",
             },
         },
         "2.12": {
             "scalatest": {
                 "version": "3.0.5",
                 "sha256": "b416b5bcef6720da469a8d8a5726e457fc2d1cd5d316e1bc283aa75a2ae005e5",
+                "srcjar_sha256": "99966e19996488c5e08b73ebf8baad0ec456aa03e6b167814f7a587b2f50230c",
             },
             "scalactic": {
                 "version": "3.0.5",
                 "sha256": "57e25b4fd969b1758fe042595112c874dfea99dca5cc48eebe07ac38772a0c41",
+                "srcjar_sha256": "b58cd691c1eda023e349e840ee55eb289ac5789c9642b5ac427932747ca38d52",
             },
             "scala_xml": {
                 "version": "1.0.5",
                 "sha256": "035015366f54f403d076d95f4529ce9eeaf544064dbc17c2d10e4f5908ef4256",
+                "srcjar_sha256": "c472bfbcccdd7b3843b4970f4538e943baccffa8ec21b4d7fea13274551e71b7",
             },
             "scala_parser_combinators": {
                 "version": "1.0.4",
                 "sha256": "282c78d064d3e8f09b3663190d9494b85e0bb7d96b0da05994fe994384d96111",
+                "srcjar_sha256": "8b8155720b40c0f7aee7dbc19d4b407307f6e57dd5394b58a3bc9849e28d25c1",
             },
         },
     }
@@ -330,7 +338,8 @@ def scala_repositories(
             _default_scala_version_jar_shas(),
         ),
         maven_servers = ["http://central.maven.org/maven2"],
-        scala_extra_jars = _default_scala_extra_jars()):
+        scala_extra_jars = _default_scala_extra_jars(),
+        fetch_sources = False):
     (scala_version, scala_version_jar_shas) = scala_version_shas
     major_version = _extract_major_version(scala_version)
 
@@ -338,6 +347,7 @@ def scala_repositories(
         scala_version = scala_version,
         scala_version_jar_shas = scala_version_jar_shas,
         maven_servers = maven_servers,
+        fetch_sources = fetch_sources,
     )
 
     scala_version_extra_jars = scala_extra_jars[major_version]
@@ -349,6 +359,8 @@ def scala_repositories(
             extra_jar_version = scala_version_extra_jars["scalatest"]["version"],
         ),
         jar_sha256 = scala_version_extra_jars["scalatest"]["sha256"],
+        srcjar_sha256 = scala_version_extra_jars["scalatest"]["srcjar_sha256"],
+        fetch_sources = fetch_sources,
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -359,6 +371,8 @@ def scala_repositories(
             extra_jar_version = scala_version_extra_jars["scalactic"]["version"],
         ),
         jar_sha256 = scala_version_extra_jars["scalactic"]["sha256"],
+        srcjar_sha256 = scala_version_extra_jars["scalactic"]["srcjar_sha256"],
+        fetch_sources = fetch_sources,
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -371,6 +385,8 @@ def scala_repositories(
             extra_jar_version = scala_version_extra_jars["scala_xml"]["version"],
         ),
         jar_sha256 = scala_version_extra_jars["scala_xml"]["sha256"],
+        srcjar_sha256 = scala_version_extra_jars["scala_xml"]["srcjar_sha256"],
+        fetch_sources = fetch_sources,
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -384,6 +400,8 @@ def scala_repositories(
                 extra_jar_version = scala_version_extra_jars["scala_parser_combinators"]["version"],
             ),
         jar_sha256 = scala_version_extra_jars["scala_parser_combinators"]["sha256"],
+        srcjar_sha256 = scala_version_extra_jars["scala_parser_combinators"]["srcjar_sha256"],
+        fetch_sources = fetch_sources,
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -392,6 +410,8 @@ def scala_repositories(
         name = "scalac_rules_protobuf_java",
         artifact = "com.google.protobuf:protobuf-java:3.1.0",
         jar_sha256 = "8d7ec605ca105747653e002bfe67bddba90ab964da697aaa5daa1060923585db",
+        srcjar_sha256 = "aa3ee05377d2475826c5679b7e8c2bd2d57ad93427f1db35797e8aab3a1463c0",
+        fetch_sources = fetch_sources,
         licenses = ["notice"],
         server_urls = maven_servers,
     )
@@ -401,6 +421,8 @@ def scala_repositories(
         name = "scalac_rules_commons_io",
         artifact = "commons-io:commons-io:2.6",
         jar_sha256 = "f877d304660ac2a142f3865badfc971dec7ed73c747c7f8d5d2f5139ca736513",
+        srcjar_sha256 = "71bc251eb4bd011b60b5ce6adc8f473de10e4851207a40c14434604b288b31bf",
+        fetch_sources = fetch_sources,
         licenses = ["notice"],
         server_urls = maven_servers,
     )
