@@ -554,6 +554,9 @@ def _write_java_wrapper(ctx, args = "", wrapper_preamble = ""):
         output = wrapper,
         content = """#!/usr/bin/env bash
 {preamble}
+rm -rf {runfiles_root}/target/test-classes
+mkdir -p {runfiles_root}/target/test-classes
+
 DEFAULT_JAVABIN={javabin}
 JAVA_EXEC_TO_USE=${{REAL_EXTERNAL_JAVA_BIN:-$DEFAULT_JAVABIN}}
 {exec_str}$JAVA_EXEC_TO_USE "$@" {args}
@@ -562,6 +565,7 @@ JAVA_EXEC_TO_USE=${{REAL_EXTERNAL_JAVA_BIN:-$DEFAULT_JAVABIN}}
             exec_str = exec_str,
             javabin = javabin,
             args = args,
+            runfiles_root = _runfiles_root(ctx)
         ),
         is_executable = True,
     )
@@ -575,6 +579,9 @@ def _write_executable(ctx, rjars, main_class, jvm_flags, wrapper):
     classpath = ":".join(
         ["${RUNPATH}%s" % (j.short_path) for j in rjars.to_list()],
     )
+    if ctx.attr.testonly:
+             classpath = ":".join(["%s" % (j.short_path) for j in rjars])
+             classpath = "target/test-classes:%s" % classpath
     jvm_flags = " ".join(
         [ctx.expand_location(f, ctx.attr.data) for f in jvm_flags],
     )
