@@ -615,6 +615,9 @@ def is_dependency_analyzer_on(ctx):
 def is_dependency_analyzer_off(ctx):
     return not is_dependency_analyzer_on(ctx)
 
+def _is_plus_one_deps_off(ctx):
+    return not ("plus_one_deps" in ctx.var)
+
 # Extract very common code out from dependency analysis into single place
 # automatically adds dependency on scala-library and scala-reflect
 # collects jars from deps, runtime jars from runtime_deps, and
@@ -630,6 +633,7 @@ def _collect_jars_from_common_ctx(
         ctx.attr.deps + extra_deps + base_classpath,
         dependency_analyzer_is_off,
         unused_dependency_checker_is_off,
+        _is_plus_one_deps_off(ctx),
     )
 
     (
