@@ -45,6 +45,8 @@ java_proto_library(
 scalapb_proto_library(
     name = "test_proto_java_conversions",
     visibility = ["//visibility:public"],
+    with_flat_package = True,
+    with_java = True,
     deps = [
         ":test2",
         ":test_proto_java_lib",
@@ -55,5 +57,6 @@ scalapb_proto_library(
 scalapb_proto_library(
     name = "test_proto",
     visibility = ["//visibility:public"],
+    with_grpc = True,
     deps = [":test_service"],
 )
