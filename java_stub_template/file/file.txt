@@ -350,9 +350,9 @@ if [ -z "$CLASSPATH_LIMIT" ]; then
 fi
 
 #Difference from https://github.com/bazelbuild/bazel/blob/68c7e5a3c679be51f750d44aae146007f0f04b4d/src/main/java/com/google/devtools/build/lib/bazel/rules/java/java_stub_template.txt
-local JARBIN="%jarbin%"
-local PERCENTAGE_LITERAL="%"
-local JARBIN_LITERAL="${PERCENTAGE_LITERAL}jarbin${PERCENTAGE_LITERAL}"
+JARBIN="%jarbin%"
+PERCENTAGE_LITERAL="%"
+JARBIN_LITERAL="${PERCENTAGE_LITERAL}jarbin${PERCENTAGE_LITERAL}"
 # if jarbin is evaluated to empty string or not substituted fallback to previous behavior
 # for backwards compatibility
 if [ -z "$JARBIN" ] || [ "$JARBIN" == "$JARBIN_LITERAL" ] ; then
