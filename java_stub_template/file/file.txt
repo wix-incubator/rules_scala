@@ -307,7 +307,6 @@ function create_and_run_classpath_jar() {
 
   # Create manifest file
   MANIFEST_FILE="$(mktemp -t XXXXXXXX.jar_manifest)"
-  echo "$MANIFEST_FILE"
   (
     CLASSPATH_LINE="Class-Path:$MANIFEST_CLASSPATH"
     CLASSPATH_MANIFEST_LINES=$(sed -E $'s/(.{71})/\\1\\\n /g' <<< "${CLASSPATH_LINE}")
@@ -327,12 +326,7 @@ function create_and_run_classpath_jar() {
     die "ERROR: $self failed because $JARBIN failed"
 
   # Execute JAVA command
-  now=$(date +"%T")
-  echo "Test start : $now"
   $JAVABIN -classpath "$MANIFEST_JAR_FILE" "${ARGS[@]}"
-  now=$(date +"%T")
-  echo "Test end : $now"
-
   exit_code=$?
   rm -f "$MANIFEST_FILE"
   rm -f "$MANIFEST_JAR_FILE"
