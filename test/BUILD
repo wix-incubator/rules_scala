@@ -351,7 +351,12 @@ scala_junit_test(
     suffixes = ["Test"],
     runtime_deps = [":JUnitRuntimeDep"],
     deps = [":JUnitCompileTimeDep"],
+    exec_compatible_with = [":large_machine"]
 )
+
+constraint_setting(name = "machine_size")
+constraint_value(name = "large_machine", constraint_setting = ":machine_size")
+
 
 scala_junit_test(
     name = "JunitMultipleSuffixes",
