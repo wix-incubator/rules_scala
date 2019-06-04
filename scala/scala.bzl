@@ -224,7 +224,10 @@ scala_library = rule(
     attrs = _scala_library_attrs,
     fragments = ["java"],
     outputs = _library_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+    toolchains = [
+        "@io_bazel_rules_scala//scala:toolchain_type",
+        "@io_bazel_rules_scala//scala:toolchain_config_type"
+    ],
     implementation = _scala_library_impl,
 )
 
@@ -247,7 +250,10 @@ scala_library_for_plugin_bootstrapping = rule(
     attrs = _scala_library_for_plugin_bootstrapping_attrs,
     fragments = ["java"],
     outputs = _library_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+    toolchains = [
+        "@io_bazel_rules_scala//scala:toolchain_type",
+        "@io_bazel_rules_scala//scala:toolchain_config_type"
+    ],
     implementation = _scala_library_for_plugin_bootstrapping_impl,
 )
 
@@ -280,7 +286,10 @@ scala_macro_library = rule(
     attrs = _scala_macro_library_attrs,
     fragments = ["java"],
     outputs = _common_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+    toolchains = [
+        "@io_bazel_rules_scala//scala:toolchain_type",
+        "@io_bazel_rules_scala//scala:toolchain_config_type"
+    ],
     implementation = _scala_macro_library_impl,
 )
 
@@ -302,7 +311,10 @@ scala_binary = rule(
     executable = True,
     fragments = ["java"],
     outputs = _common_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+    toolchains = [
+        "@io_bazel_rules_scala//scala:toolchain_type",
+        "@io_bazel_rules_scala//scala:toolchain_config_type"
+    ],
     implementation = _scala_binary_impl,
 )
 
@@ -347,7 +359,10 @@ scala_test = rule(
     fragments = ["java"],
     outputs = _common_outputs,
     test = True,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+    toolchains = [
+        "@io_bazel_rules_scala//scala:toolchain_type",
+        "@io_bazel_rules_scala//scala:toolchain_config_type"
+    ],
     implementation = _scala_test_impl,
 )
 
@@ -366,7 +381,10 @@ scala_repl = rule(
     executable = True,
     fragments = ["java"],
     outputs = _common_outputs,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+    toolchains = [
+        "@io_bazel_rules_scala//scala:toolchain_type",
+        "@io_bazel_rules_scala//scala:toolchain_config_type"
+    ],
     implementation = _scala_repl_impl,
 )
 
@@ -688,7 +706,10 @@ scala_junit_test = rule(
     fragments = ["java"],
     outputs = _common_outputs,
     test = True,
-    toolchains = ["@io_bazel_rules_scala//scala:toolchain_type"],
+    toolchains = [
+        "@io_bazel_rules_scala//scala:toolchain_type",
+        "@io_bazel_rules_scala//scala:toolchain_config_type"
+    ],
     implementation = _scala_junit_test_impl,
 )
 
