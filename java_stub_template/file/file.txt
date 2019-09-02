@@ -291,12 +291,11 @@ ARGS=(
 
 function create_and_run_classpath_jar() {
   # Build class path as one single string separated by spaces
-  MANIFEST_CLASSPATH=""
   if is_windows; then
-    IFS=';'
+    CLASSPATH_SEPARATOR=";"
     URI_PREFIX="file:/"  # e.g. "file:/C:/temp/foo.jar"
   else
-    IFS=':'
+    CLASSPATH_SEPARATOR=":"
     URI_PREFIX="file:$(pwd)/"  # e.g. "file:/usr/local/foo.jar"
   fi
 
