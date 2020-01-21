@@ -247,3 +247,8 @@ scala_maven_import_external(
         "https://repo.maven.apache.org/maven2/",
     ],
 )
+
+local_repository(
+    name = "strip_resource_external_workspace",
+    path = "strip_resource_external_workspace",
+)
