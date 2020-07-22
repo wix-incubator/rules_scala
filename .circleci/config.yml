@@ -1,0 +1,46 @@
+
+version: 2.1
+
+executors:
+  linux:
+    docker:
+      - image: l.gcr.io/google/bazel:3.4.1
+  macos:
+    macos:
+      xcode: 10.1
+
+jobs:
+  test:
+    parameters:
+      os:
+        type: executor
+      test_script:
+        type: string
+    executor: << parameters.os >>
+    environment:
+      TEST_SCRIPT: << parameters.test_script >>
+      XDG_CACHE_HOME: ~/xdg_cache
+    steps:
+      - checkout
+      - run:
+        name: Execute << parameters.test_string >> on << parameters.os >>
+        command: |-
+            # Set environment variables
+            # Install Bazelisk
+            rm /usr/local/bin/bazel
+            wget -O /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-darwin-amd64
+            chmod +x /usr/local/bin/bazel
+            which bazel
+
+            cat .bazelrc.travis >> .bazelrc
+            # Execute bazel
+            bash ./${TEST_SCRIPT}.sh ci
+
+workflows:
+  all-tests:
+    jobs:
+      - test:
+          matrix:
+            parameters:
+              os: [linux]
+              node-version: ["test_rules_scala", "test_reproducibility", "test_version"]
