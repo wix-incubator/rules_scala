@@ -4,7 +4,7 @@ version: 2.1
 executors:
   linux:
     docker:
-      - image: l.gcr.io/google/bazel:3.4.1
+      - image: cimg/base:latest
   macos:
     macos:
       xcode: 10.1
