@@ -1,0 +1,34 @@
+name: Run all tests
+
+on: [push]
+
+jobs:
+  build:
+    # Job name is Greeting
+    name: ${{ matrix.test_script }} (${{ matrix.os }})
+    # This job runs on Linux
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+        test_script: ['test_rules_scala', 'test_reproducibility', 'test_version']
+    steps:
+      - name: install bazelisk
+        run: |
+            SYS_ENV_PLATFORM=linux
+            if uname -a | grep Darwin; then
+              SYS_ENV_PLATFORM=darwin
+            else
+              sudo apt install -y libxml2-utils
+            fi
+            sudo curl -L --output /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-${SYS_ENV_PLATFORM}-amd64
+            sudo chmod +x /usr/local/bin/bazel
+
+      - uses: actions/checkout@v2
+
+      - name: ${{ matrix.test_script }}
+        env: 
+          DEVELOPER_DIR: '/Applications/Xcode_10.1.app/Contents/Developer'
+        run: |
+            cat .bazelrc.travis >> .bazelrc
+            bash ./${{ matrix.test_script }}.sh
