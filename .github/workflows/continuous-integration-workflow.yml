@@ -9,6 +9,7 @@ jobs:
     # This job runs on Linux
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest]
         test_script: ['test_rules_scala', 'test_reproducibility', 'test_version']
@@ -25,6 +26,15 @@ jobs:
             sudo chmod +x /usr/local/bin/bazel
 
       - uses: actions/checkout@v2
+
+      - name: bazel cache
+        uses: actions/cache@v2
+        with:
+          path: .bazel_cache
+          key: ${{ runner.os }}-${{ matrix.test_script }}-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.test_script }}--${{ github.ref }}
+            ${{ runner.os }}-${{ matrix.test_script }}--refs/heads/master
 
       - name: ${{ matrix.test_script }}
         env: 
