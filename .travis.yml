@@ -58,23 +58,24 @@ jobs:
     - <<: *osx
       env: TEST_SCRIPT=test_version USE_BAZEL_VERSION=2.0.0
 
-before_install_windows:
-  - if : os=windows
+before_install:
   - |
-    choco install jdk8 -params 'installdir=c:\\java8'
-    mkdir %USERPROFILE%\bazel
-    powershell Invoke-WebRequest https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-windows-amd64.exe -OutFile %USERPROFILE%\bazel\bazel.exe
-    set PATH=%PATH%;%USERPROFILE%\bazel
-before_install_linux:
-  - if: os=linux
-  - |
-    sudo wget -O /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64
-    sudo chmod +x /usr/local/bin/bazel
-before_install_dawin:
-  - if: os=osx
-  - |
-    sudo wget -O /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-darwin-amd64
-    sudo chmod +x /usr/local/bin/bazel
+    if [ "$TRAVIS_OS_NAME" = "windows" ]; then
+      choco install jdk8 -params 'installdir=c:\\java8'
+      mkdir %USERPROFILE%\bazel
+      powershell Invoke-WebRequest https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-windows-amd64.exe -OutFile %USERPROFILE%\bazel\bazel.exe
+      set PATH=%PATH%;%USERPROFILE%\bazel
+    fi
+    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      sudo wget -O /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64
+      sudo chmod +x /usr/local/bin/bazel
+    fi
+    if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+      sudo wget -O /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-darwin-amd64
+      sudo chmod +x /usr/local/bin/bazel
+    fi
+    cat .bazelrc.travis >> .bazelrc
+    
 script:
   - |
     cat .bazelrc.travis >> .bazelrc
