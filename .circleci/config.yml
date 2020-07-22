@@ -22,19 +22,17 @@ jobs:
       XDG_CACHE_HOME: ~/xdg_cache
     steps:
       - checkout
-      - run:
-        name: Execute << parameters.test_string >> on << parameters.os >>
-        command: |-
-            # Set environment variables
-            # Install Bazelisk
-            rm /usr/local/bin/bazel
-            wget -O /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-darwin-amd64
-            chmod +x /usr/local/bin/bazel
-            which bazel
+      - run: |-
+              # Set environment variables
+              # Install Bazelisk
+              rm /usr/local/bin/bazel
+              wget -O /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-darwin-amd64
+              chmod +x /usr/local/bin/bazel
+              which bazel
 
-            cat .bazelrc.travis >> .bazelrc
-            # Execute bazel
-            bash ./${TEST_SCRIPT}.sh ci
+              cat .bazelrc.travis >> .bazelrc
+              # Execute bazel
+              bash ./${TEST_SCRIPT}.sh ci
 
 workflows:
   all-tests:
@@ -43,5 +41,5 @@ workflows:
           matrix:
             parameters:
               os: [linux]
-              node-version: ["test_rules_scala", "test_reproducibility", "test_version"]
+              test_script: ["test_rules_scala", "test_reproducibility", "test_version"]
 
