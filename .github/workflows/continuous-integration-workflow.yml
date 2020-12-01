@@ -50,4 +50,4 @@ jobs:
           DEVELOPER_DIR: '/Applications/Xcode_10.1.app/Contents/Developer'
         run: |
             cat .bazelrc.travis >> .bazelrc
-            bash ./${{ matrix.test_script }}.sh
+            bash ./${{ matrix.test_script }}.sh ci
