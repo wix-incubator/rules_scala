@@ -8,16 +8,20 @@ jobs:
     name: ${{ matrix.test_script }} (${{ matrix.os }})
     # This job runs on Linux
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-16.04]
         test_script: ['test_rules_scala', 'test_reproducibility', 'test_version']
+        experimental: [false]
         include:
           - os: ubuntu-16.04
             test_script: 'test_lint'
+            experimental: false
           - os: ubuntu-16.04
             test_script: 'test_examples'
+            experimental: false
           - os: ubuntu-16.04
             test_script: 'test_rules_scala_with_latest_bazel'
             experimental: true
