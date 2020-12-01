@@ -11,8 +11,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-16.04]
         test_script: ['test_rules_scala', 'test_reproducibility', 'test_version']
+        include:
+          - os: ubuntu-16.04
+            test_script: 'test_lint'
+          - os: ubuntu-16.04
+            test_script: 'test_examples'
+          - os: ubuntu-16.04
+            test_script: 'test_rules_scala_with_latest_bazel'
+            experimental: true
+          
     steps:
       - name: install bazelisk
         run: |
