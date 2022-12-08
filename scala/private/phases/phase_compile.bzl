@@ -195,6 +195,7 @@ def _compile_or_empty(
             manifest,
             ctx.outputs.statsfile,
             ctx.outputs.diagnosticsfile,
+            ctx.outputs.scaladepsfile,
             sources,
             jars,
             all_srcjars,
@@ -271,6 +272,7 @@ rm -f {jar_output}
 # ensures that empty src targets still emit a statsfile and a diagnosticsfile
 touch {statsfile}
 touch {diagnosticsfile}
+touch {scaladepsfile}
 """ + ijar_cmd
 
     cmd = cmd.format(
@@ -279,9 +281,10 @@ touch {diagnosticsfile}
         zipper = ctx.executable._zipper.path,
         statsfile = ctx.outputs.statsfile.path,
         diagnosticsfile = ctx.outputs.diagnosticsfile.path,
+        scaladepsfile = ctx.outputs.scaladepsfile.path,
     )
 
-    outs = [ctx.outputs.jar, ctx.outputs.statsfile, ctx.outputs.diagnosticsfile]
+    outs = [ctx.outputs.jar, ctx.outputs.statsfile, ctx.outputs.diagnosticsfile, ctx.outputs.scaladepsfile]
     inputs = ctx.files.resources + [ctx.outputs.manifest]
 
     ctx.actions.run_shell(
